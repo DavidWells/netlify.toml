@@ -1,0 +1,29 @@
+# Toml
+
+sharedValue = "shared value"
+otherValue = "other value"
+
+[build]
+  publish = "build"
+  command = "npm run dev"
+  environment.ACCESS_TOKEN = "${env:MY_SECRET}" # process.env.MY_SECRET
+
+# Reference environment variables
+[context.production]
+  environment.ACCESS_TOKEN = "${env:MY_SECRET}" # process.env.MY_SECRET
+  environment.TWILIO = "${env:TWILIO_TOKEN}"    # process.env.TWILIO_TOKEN
+
+# Call async values a.k.a bring your own secret store
+[context.deploy-preview]
+  environment.ACCESS_TOKEN = "${file(asyncValue.js)}" # value from asyncValue.js
+  environment.TWILIO = "${env:TWILIO_TOKEN}" # process.env.TWILIO_TOKEN
+  environment.SHARED = "${sharedValue}" # value from sharedValue key above
+
+# Fallback values if no env found
+[context.branch-deploy.environment]
+  ACCESS_TOKEN = "${env:MY_OTHER_SECRET, 'fallback value'}"
+  SHARED = "${sharedValue}"
+
+# Call async value with input params
+[advancedExample]
+  ACCESS_TOKEN = "${file(asyncValue.js, 'dev', ${sharedValue})}"
